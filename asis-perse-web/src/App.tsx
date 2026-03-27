@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   ResponsiveContainer,
@@ -12,47 +12,49 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  AreaChart,
-  Area,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
 } from 'recharts'
 import {
   Building2,
   MapPin,
-  TrendingUp,
-  Wallet,
-  Landmark,
-  ShieldCheck,
   Briefcase,
-  Calendar,
-  BarChart3,
   Target,
-  AlertTriangle,
-  CheckCircle2,
+  Menu,
+  X,
   Moon,
   Sun,
   Printer,
-  Menu,
-  X,
-  Images,
   FileText,
+  Newspaper,
+  Search,
+  CheckCircle2,
+  Images,
+  ListOrdered,
 } from 'lucide-react'
 
 type Theme = 'light' | 'dark'
 
-const currency = (n: number) =>
-  new Intl.NumberFormat('es-MX', {
-    style: 'currency',
-    currency: 'MXN',
-    maximumFractionDigits: 0,
-  }).format(n)
+type MarketChartRow = {
+  category: string
+  projectValue: number
+  marketValue: number
+}
 
-const tooltipCurrencyFormatter = (value: unknown) =>
-  typeof value === 'number' ? currency(value) : String(value ?? '')
+type Amenity = {
+  name: string
+  image: string
+  description: string
+}
+
+type SimilarProject = {
+  name: string
+  location: string
+  summary: string
+}
+
+type SourceLink = {
+  label: string
+  url: string
+}
 
 const project = {
   name: 'Asís PerSe',
@@ -65,7 +67,6 @@ const project = {
   totalInvestment: 81898223,
   annualRate: 18.25,
   estimatedIRR: 19.52,
-  guaranteeValue: 52875668,
   guaranteeRatio: 2.7,
   occupancy: 70,
   marketOccupancy: 68,
@@ -75,134 +76,165 @@ const project = {
   monthlyIncomePerUnit: 28980,
   soldParticipations: 34,
   totalParticipations: 85,
-  seniorDebt: 27350000,
-  developerCapital: 27091223,
-  presales: 27457000,
   operationModel: 'Rentas de corta y larga estancia',
   constructionProgress: 42,
-  marketSaleArea: 88,
-  projectArea: 33,
-  zonePriceDept: 5744018,
-  projectPriceDept: 2500000,
-  zonePriceM2: 66730,
-  projectPriceM2: 75097,
+  developerRaised: '$191.4M',
+  campaigns: 67,
+  projects: 6,
+  previousWithBriq: 'cuarto proyecto en colaboración con briq.mx',
 }
 
+const amenityDetails: Amenity[] = [
+  {
+    name: 'Roof garden 200 m²',
+    image: '/project-1.jpeg.webp',
+    description: 'Espacio panorámico para convivencia, descanso y vistas abiertas en la parte alta del desarrollo.',
+  },
+  {
+    name: 'Gimnasio',
+    image: '/gym.jpg.webp',
+    description: 'Área enfocada en bienestar y actividad física, alineada con el perfil ejecutivo del proyecto.',
+  },
+  {
+    name: 'Terrazas',
+    image: '/image.png',
+    description: 'Zonas abiertas que suman valor a la estancia y refuerzan la experiencia premium del edificio.',
+  },
+  {
+    name: 'Lobby',
+    image: '/loby.webp',
+    description: 'Acceso principal con una imagen cuidada para recepción, circulación y primera impresión del usuario.',
+  },
+  {
+    name: 'Elevadores',
+    image: '/elevadores.png',
+    description: 'Elemento funcional clave para la comodidad diaria y el flujo eficiente entre niveles.',
+  },
+]
+
+const similarProjects: SimilarProject[] = [
+  {
+    name: 'Alarcón PerSe',
+    location: 'Mexicaltzingo 2334, Guadalajara',
+    summary: 'Desarrollo diseñado bajo esquema de pool de rentas temporales, con una propuesta enfocada en ubicación urbana, movilidad y rendimiento para inversionistas.',
+  },
+  {
+    name: 'San Martín PerSe',
+    location: 'General San Martín 584, Col. Lafayette',
+    summary: 'Proyecto residencial construido a partir del análisis de demanda de la zona Chapultepec, con una mezcla de diseño, plusvalía y enfoque en rentabilidad.',
+  },
+  {
+    name: 'Monraz PerSe',
+    location: 'Huicholes 305, Guadalajara',
+    summary: 'Desarrollo habitacional de menor escala y perfil exclusivo, orientado a usuarios que priorizan diseño, seguridad y ubicación dentro de una zona consolidada.',
+  },
+]
+
 const teamInfo = {
-  title: 'Evaluación Financiera del Proyecto Asís PerSe',
+  title: 'Avance del proyecto | Evaluación Financiera',
   subject: 'Finanzas',
-  professor: 'Alfredo Uribe',
-  university: 'UNAM',
+  professor: 'Alfredo Uribe Aranda',
+  university: 'UNAM Facultad de Ingenieria',
   group: '06',
   date: '27/03/2026',
   members: [
-    'Francisco Javier Reynoso Ortega',
-    'Integrante 2',
-    'Integrante 3',
+    'Hernández Cázares Rosario Marah',
+    'Onofre Gutiérrez Guillermo Angel',
+    'Reynoso Ortega Francisco Javier',
+    'Ríos Rivera Alejandro',
+    'Sotomayor Suárez Edgar Antonio',
   ],
 }
 
-const capitalData = [
-  { name: 'Deuda Senior', value: 27350000, share: 33 },
-  { name: 'Capital del desarrollador', value: 27091223, share: 33 },
-  { name: 'Preventa', value: 27457000, share: 34 },
+const marketRentData: MarketChartRow[] = [
+  { category: 'Área (m²)', projectValue: 33, marketValue: 79 },
+  { category: 'Renta mensual', projectValue: 28980, marketValue: 25337 },
+  { category: 'Renta anual', projectValue: 347760, marketValue: 304038 },
+  { category: 'Precio por m²/mes', projectValue: 878, marketValue: 321 },
 ]
 
-const marketRentData = [
-  { category: 'Costo por noche', principal: 1350, comparativo: 801 },
-  { category: 'Ocupación', principal: 70, comparativo: 68 },
-  { category: 'Ingreso mensual', principal: 28980, comparativo: 16618 },
-  { category: 'Ingreso anual', principal: 347760, comparativo: 199498 },
+const saleData: MarketChartRow[] = [
+  { category: 'Área (m²)', projectValue: 33, marketValue: 66 },
+  { category: 'Precio depa', projectValue: 2500000, marketValue: 5284185 },
+  { category: 'Precio por m²', projectValue: 75758, marketValue: 80429 },
 ]
 
-const marketSaleData = [
-  { category: 'Área (m²)', principal: 33, comparativo: 88 },
-  { category: 'Precio depa', principal: 2500000, comparativo: 5744018 },
-  { category: 'Precio por m²', principal: 75097, comparativo: 66730 },
-  { category: 'Recámaras', principal: 1, comparativo: 2 },
+const rentSources: SourceLink[] = [
+  {
+    label: 'Inmuebles24: renta de 1 recámara en Providencia',
+    url: 'https://www.inmuebles24.com/inmuebles-en-renta-en-providencia-con-area-de-juegos-infantiles-con-1-recamara.html',
+  },
+  {
+    label: 'Inmuebles24: renta de 1 recámara en Prados de Providencia',
+    url: 'https://www.inmuebles24.com/inmuebles-en-renta-en-prados-de-providencia-con-1-recamara.html',
+  },
+  {
+    label: 'Inmuebles24: renta amueblada en Colomos Providencia',
+    url: 'https://www.inmuebles24.com/inmuebles-en-renta-en-fraccionamiento-colomos-providencia-con-amueblado-con-1-recamara.html',
+  },
 ]
 
-const scenarioData = {
-  optimista: { occupancy: 78, nightly: 1450, annualIncome: 15713520, verdict: 'Muy rentable' },
-  base: { occupancy: 70, nightly: 1350, annualIncome: 13214880, verdict: 'Rentable' },
-  pesimista: { occupancy: 58, nightly: 1200, annualIncome: 9653520, verdict: 'Rentabilidad presionada' },
-}
+const saleSources: SourceLink[] = [
+  {
+    label: 'Inmuebles24: venta de 1 recámara en Providencia',
+    url: 'https://www.inmuebles24.com/departamentos-en-venta-en-providencia-con-1-recamara.html',
+  },
+  {
+    label: 'Inmuebles24: venta en Providencia 1a Sección',
+    url: 'https://www.inmuebles24.com/departamentos-en-venta-en-providencia-1a-secc-con-1-recamara.html',
+  },
+  {
+    label: 'Inmuebles24: venta a estrenar en Providencia 1a Sección',
+    url: 'https://www.inmuebles24.com/departamentos-en-venta-en-providencia-1a-secc-con-1-recamara-a-estrenar.html',
+  },
+]
+
+const participationsData = [
+  {
+    name: 'Vendidas',
+    value: 34,
+  },
+  {
+    name: 'Disponibles',
+    value: 51,
+  },
+]
 
 const foda = {
   fortalezas: [
-    'Ubicación estratégica cerca de Midtown y zona financiera',
-    'Desarrollador con trayectoria en proyectos similares',
-    'Garantía hipotecaria sólida',
-    'Producto enfocado en renta ejecutiva y turística',
+    'Ubicación privilegiada cerca de Midtown y la zona financiera',
+    'Desarrollador con experiencia previa y buen historial en briq.mx',
+    'Amenidades atractivas para el mercado ejecutivo y turístico',
+    'Modelo de operación orientado a rentas de corta y larga estancia',
   ],
   oportunidades: [
     'Crecimiento del turismo de negocios en Guadalajara',
-    'Alta demanda de estancias cortas y medias',
-    'Plusvalía en Providencia',
-    'Posibilidad de alianzas con empresas y plataformas de hospedaje',
+    'Mayor demanda de estancias temporales en zonas premium',
+    'Plusvalía de Providencia',
+    'Alianzas con plataformas y canales de renta',
   ],
   debilidades: [
-    'Dependencia de mantener niveles de ocupación altos',
-    'Precio por m² superior al promedio de la zona',
-    'Concentración del proyecto en estudios',
+    'Dependencia de una alta ocupación para sostener ingresos',
+    'Precio por m² superior al promedio del mercado',
+    'Concentración del proyecto en estudios de menor tamaño',
   ],
   amenazas: [
-    'Mayor competencia en rentas temporales',
-    'Cambios regulatorios',
-    'Baja en la demanda turística',
-    'Aumento de costos operativos',
+    'Competencia de nuevos desarrollos similares',
+    'Posibles cambios regulatorios en rentas temporales',
+    'Variación en la demanda turística o ejecutiva',
+    'Incremento de costos operativos o de mantenimiento',
   ],
 }
 
-const timeline = [
-  {
-    title: 'Planeación y fondeo',
-    desc: 'Estructuración de capital con deuda senior, capital del desarrollador y preventa.',
-    tag: 'Financiamiento',
-  },
-  {
-    title: 'Construcción',
-    desc: 'Avance de obra reportado de 42%, con estructuras, albañilería e instalaciones.',
-    tag: 'Obra',
-  },
-  {
-    title: 'Comercialización',
-    desc: 'Venta de participaciones e integración del esquema de inversión.',
-    tag: 'Mercado',
-  },
-  {
-    title: 'Operación',
-    desc: 'Explotación del inmueble mediante rentas de corta y larga estancia.',
-    tag: 'Operación',
-  },
-]
-
-const photoCards = [
-  {
-    src: '/project-1.jpg.webp',
-    title: 'Vista del proyecto',
-    text: 'Usa aquí una captura del render o portada del desarrollo.',
-  },
-  {
-    src: '/project-2.jpeg.png',
-    title: 'Ubicación estratégica',
-    text: 'Aquí puedes colocar una imagen del mapa o localización.',
-  },
-  {
-    src: '/INTERIOR_02.jpg.webp',
-    title: 'Datos del proyecto',
-    text: 'Aquí puedes poner una captura con amenidades o estructura de capital.',
-  },
-]
-
 const navItems = [
   { id: 'inicio', label: 'Inicio' },
+  { id: 'indice', label: 'Índice' },
+  { id: 'objetivo', label: 'Objetivo' },
+  { id: 'antecedentes', label: 'Antecedentes' },
+  { id: 'resumen', label: 'Resumen ejecutivo' },
   { id: 'descripcion', label: 'Descripción' },
-  { id: 'finanzas', label: 'Finanzas' },
-  { id: 'mercado', label: 'Mercado' },
   { id: 'foda', label: 'FODA' },
-  { id: 'escenarios', label: 'Escenarios' },
-  { id: 'resultados', label: 'Resultados' },
+  { id: 'mercado', label: 'Mercado' },
   { id: 'creditos', label: 'Créditos' },
 ]
 
@@ -210,18 +242,11 @@ function App() {
   const [theme, setTheme] = useState<Theme>('light')
   const [menuOpen, setMenuOpen] = useState(false)
   const [marketView, setMarketView] = useState<'rentas' | 'venta'>('rentas')
-  const [scenario, setScenario] = useState<keyof typeof scenarioData>('base')
 
   const isDark = theme === 'dark'
 
-  const bgMain = isDark
-    ? 'bg-slate-950 text-slate-100'
-    : 'bg-slate-50 text-slate-900'
-
-  const bgCard = isDark
-    ? 'bg-slate-900 border border-slate-800'
-    : 'bg-white border border-slate-200'
-
+  const bgMain = isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+  const bgCard = isDark ? 'bg-slate-900 border border-slate-800' : 'bg-white border border-slate-200'
   const muted = isDark ? 'text-slate-300' : 'text-slate-600'
   const title = isDark ? 'text-white' : 'text-slate-900'
   const soft = isDark ? 'bg-slate-800' : 'bg-slate-100'
@@ -229,82 +254,43 @@ function App() {
     ? 'bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.15),transparent_30%),radial-gradient(circle_at_left,rgba(168,85,247,0.12),transparent_25%)]'
     : 'bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.18),transparent_30%),radial-gradient(circle_at_left,rgba(168,85,247,0.10),transparent_25%)]'
 
-  const annualProjectIncome = project.annualIncomePerUnit * project.units
-  const participationProgress = Math.round(
-    (project.soldParticipations / project.totalParticipations) * 100
-  )
-
-  const scenarioSeries = useMemo(
-    () => [
-      { name: 'Optimista', ingreso: scenarioData.optimista.annualIncome },
-      { name: 'Base', ingreso: scenarioData.base.annualIncome },
-      { name: 'Pesimista', ingreso: scenarioData.pesimista.annualIncome },
-    ],
-    []
-  )
-
   const chartColors = ['#0ea5e9', '#8b5cf6', '#14b8a6', '#f59e0b']
 
-  const stats = [
-    { label: 'Inversión total', value: currency(project.totalInvestment), icon: Wallet },
-    { label: 'Tasa anual fija', value: `${project.annualRate}%`, icon: Landmark },
-    { label: 'TIR estimada', value: `${project.estimatedIRR}%`, icon: TrendingUp },
-    { label: 'Garantía / crédito', value: `${project.guaranteeRatio} a 1`, icon: ShieldCheck },
-  ]
-
-  const handlePrint = () => {
-    window.print()
-  }
+  const handlePrint = () => window.print()
+  const marketChartData = marketView === 'rentas' ? marketRentData : saleData
+  const marketLegend = marketView === 'rentas'
+    ? { project: 'Proyecto', market: 'Mercado' }
+    : { project: 'Asís', market: 'Zona' }
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(project.location)}`
 
   return (
     <div className={bgMain}>
-      <header
-        className={`no-print sticky top-0 z-50 backdrop-blur ${isDark ? 'bg-slate-950/85 border-b border-slate-800' : 'bg-white/85 border-b border-slate-200'}`}
-      >
+      <header className={`no-print sticky top-0 z-50 backdrop-blur ${isDark ? 'bg-slate-950/85 border-b border-slate-800' : 'bg-white/85 border-b border-slate-200'}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-sky-500 px-3 py-2 text-sm font-bold text-white shadow-md">
-              AP
-            </div>
+            <div className="rounded-2xl bg-sky-500 px-3 py-2 text-sm font-bold text-white shadow-md">AP</div>
             <div>
               <p className={`text-sm font-semibold ${title}`}>Asís PerSe</p>
-              <p className={`text-xs ${muted}`}>Evaluación financiera interactiva</p>
+              <p className={`text-xs ${muted}`}>Avance 1 al 7</p>
             </div>
           </div>
 
           <nav className="hidden items-center gap-2 lg:flex">
             {navItems.map((item) => (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                className={`rounded-xl px-3 py-2 text-sm transition ${isDark ? 'text-slate-200 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'}`}
-              >
+              <a key={item.id} href={`#${item.id}`} className={`rounded-xl px-3 py-2 text-sm transition ${isDark ? 'text-slate-200 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'}`}>
                 {item.label}
               </a>
             ))}
           </nav>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={handlePrint}
-              className={`no-print inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition ${isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-900 hover:bg-slate-200'}`}
-            >
-              <Printer className="h-4 w-4" />
-              PDF
+            <button onClick={handlePrint} className={`no-print inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition ${isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-900 hover:bg-slate-200'}`}>
+              <Printer className="h-4 w-4" /> PDF
             </button>
-
-            <button
-              onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className={`no-print rounded-xl px-3 py-2 transition ${isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-900 hover:bg-slate-200'}`}
-              aria-label="Cambiar tema"
-            >
+            <button onClick={() => setTheme(isDark ? 'light' : 'dark')} className={`no-print rounded-xl px-3 py-2 transition ${isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-900 hover:bg-slate-200'}`} aria-label="Cambiar tema">
               {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
-
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className={`no-print rounded-xl px-3 py-2 lg:hidden ${isDark ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-900'}`}
-            >
+            <button onClick={() => setMenuOpen(!menuOpen)} className={`no-print rounded-xl px-3 py-2 lg:hidden ${isDark ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-900'}`}>
               {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
           </div>
@@ -314,12 +300,7 @@ function App() {
           <div className={`no-print border-t px-4 py-3 lg:hidden ${isDark ? 'border-slate-800 bg-slate-950' : 'border-slate-200 bg-white'}`}>
             <div className="flex flex-col gap-2">
               {navItems.map((item) => (
-                <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  onClick={() => setMenuOpen(false)}
-                  className={`rounded-xl px-3 py-2 text-sm ${isDark ? 'text-slate-200 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'}`}
-                >
+                <a key={item.id} href={`#${item.id}`} onClick={() => setMenuOpen(false)} className={`rounded-xl px-3 py-2 text-sm ${isDark ? 'text-slate-200 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'}`}>
                   {item.label}
                 </a>
               ))}
@@ -333,16 +314,10 @@ function App() {
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-24">
           <div>
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-              <span className="inline-flex rounded-full bg-sky-500 px-4 py-1 text-sm font-semibold text-white shadow-md">
-                Proyecto de Finanzas
-              </span>
-              <h1 className={`mt-5 text-4xl font-bold tracking-tight lg:text-6xl ${title}`}>
-                {project.name}
-              </h1>
+              <span className="inline-flex rounded-full bg-sky-500 px-4 py-1 text-sm font-semibold text-white shadow-md">Entrega parcial</span>
+              <h1 className={`mt-5 text-4xl font-bold tracking-tight lg:text-6xl ${title}`}>{project.name}</h1>
               <p className={`mt-4 max-w-2xl text-lg leading-8 ${muted}`}>
-                Plataforma web interactiva para sustituir la presentación tradicional y mostrar
-                la evaluación financiera, el mercado, los escenarios y la rentabilidad del
-                proyecto inmobiliario.
+                Sitio interactivo para presentar el avance solicitado del proyecto de evaluación financiera, enfocado únicamente en índice, objetivo, antecedentes, resumen ejecutivo, descripción del proyecto, análisis FODA y estudio de mercado.
               </p>
             </motion.div>
 
@@ -351,225 +326,154 @@ function App() {
               <Badge icon={MapPin} text={project.shortLocation} isDark={isDark} />
               <Badge icon={Briefcase} text={project.developer} isDark={isDark} />
             </div>
-
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {stats.map((item) => (
-                <StatCard
-                  key={item.label}
-                  label={item.label}
-                  value={item.value}
-                  Icon={item.icon}
-                  isDark={isDark}
-                />
-              ))}
-            </div>
           </div>
 
           <div className={`rounded-[2rem] p-5 shadow-2xl ${bgCard}`}>
-            <img
-              src="/project-1.jpeg.webp"
-              alt="Proyecto Asís PerSe"
-              className="h-72 w-full rounded-[1.5rem] object-cover"
-            />
+            <HoverImage src="/project-1.jpg.webp" alt="Proyecto Asís PerSe" className="h-72 w-full rounded-[1.5rem]" />
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <MiniInfo title="Ingreso anual estimado" value={currency(annualProjectIncome)} isDark={isDark} />
-              <MiniInfo title="Avance de obra" value={`${project.constructionProgress}%`} isDark={isDark} />
+              <MiniInfo title="Ubicación" value={project.shortLocation} isDark={isDark} href={mapsUrl} />
+              <MiniInfo title="Amenidades" value="5 principales" isDark={isDark} />
               <MiniInfo title="Participaciones vendidas" value={`${project.soldParticipations}/${project.totalParticipations}`} isDark={isDark} />
-              <MiniInfo title="Ocupación estimada" value={`${project.occupancy}%`} isDark={isDark} />
+              <MiniInfo title="Avance de obra" value={`${project.constructionProgress}%`} isDark={isDark} />
             </div>
           </div>
         </div>
       </section>
 
       <main className="mx-auto max-w-7xl space-y-16 px-4 py-12 lg:px-8">
-        <section id="descripcion">
-          <SectionTitle
-            icon={FileText}
-            title="Descripción general"
-            subtitle="Resumen ejecutivo, ubicación, amenidades y datos relevantes."
-            isDark={isDark}
-          />
-          <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-            <Card isDark={isDark}>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <DataPair label="Desarrollador" value={project.developer} isDark={isDark} />
-                <DataPair label="Ubicación" value={project.location} isDark={isDark} />
-                <DataPair label="Modelo de operación" value={project.operationModel} isDark={isDark} />
-                <DataPair label="Amenidades" value={project.amenities.join(', ')} isDark={isDark} />
-              </div>
-
-              <div className="mt-6">
-                <p className={`text-sm ${muted}`}>Avance comercial</p>
-                <div className={`mt-2 h-3 overflow-hidden rounded-full ${soft}`}>
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-sky-500 via-cyan-500 to-violet-500"
-                    style={{ width: `${participationProgress}%` }}
-                  />
-                </div>
-                <p className={`mt-2 text-sm font-semibold ${title}`}>{participationProgress}%</p>
-              </div>
-
-              <div className="mt-6 rounded-2xl bg-gradient-to-r from-sky-500 to-violet-600 p-5 text-white">
-                <p className="text-sm uppercase tracking-wide text-white/80">Conclusión ejecutiva</p>
-                <p className="mt-2 leading-7">
-                  El proyecto combina ubicación premium, amenidades atractivas y un esquema de
-                  rentas que busca aprovechar la demanda ejecutiva y turística en Guadalajara.
-                </p>
-              </div>
-            </Card>
-
-            <Card isDark={isDark}>
-              <div className="grid gap-4 md:grid-cols-2">
-                {photoCards.map((photo) => (
-                  <div key={photo.title} className="overflow-hidden rounded-3xl">
-                    <img
-                      src={photo.src}
-                      alt={photo.title}
-                      className="h-48 w-full rounded-3xl object-cover"
-                    />
-                    <div className={`mt-3 rounded-2xl p-4 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
-                      <p className={`font-semibold ${title}`}>{photo.title}</p>
-                      <p className={`mt-1 text-sm ${muted}`}>{photo.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-        </section>
-
-        <section id="finanzas" className="print-break">
-          <SectionTitle
-            icon={BarChart3}
-            title="Consideraciones financieras"
-            subtitle="Origen de recursos, estructura de capital y lectura de inversión."
-            isDark={isDark}
-          />
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card isDark={isDark}>
-              <h3 className={`mb-4 text-lg font-semibold ${title}`}>Estructura de financiamiento</h3>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={capitalData}
-                      dataKey="value"
-                      nameKey="name"
-                      innerRadius={70}
-                      outerRadius={110}
-                      paddingAngle={4}
-                    >
-                      {capitalData.map((_, i) => (
-                        <Cell key={i} fill={chartColors[i % chartColors.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={tooltipCurrencyFormatter} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-
-            <Card isDark={isDark}>
-              <h3 className={`mb-4 text-lg font-semibold ${title}`}>Desglose del capital</h3>
-              <div className="space-y-4">
-                {capitalData.map((item, i) => (
-                  <div key={item.name} className={`rounded-2xl p-4 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
-                    <div className="mb-2 flex items-center justify-between">
-                      <span className={`font-medium ${title}`}>{item.name}</span>
-                      <span className={`text-sm font-semibold ${muted}`}>{item.share}%</span>
-                    </div>
-                    <div className={`mb-3 h-3 overflow-hidden rounded-full ${soft}`}>
-                      <div
-                        className="h-full rounded-full"
-                        style={{ width: `${item.share}%`, backgroundColor: chartColors[i] }}
-                      />
-                    </div>
-                    <p className={`text-sm ${muted}`}>{currency(item.value)}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-
-          <div className="mt-6 grid gap-6 md:grid-cols-3">
-            <KpiBlock label="Inversión total" value={currency(project.totalInvestment)} isDark={isDark} />
-            <KpiBlock label="Deuda senior" value={currency(project.seniorDebt)} isDark={isDark} />
-            <KpiBlock label="Valor de la garantía" value={currency(project.guaranteeValue)} isDark={isDark} />
-          </div>
-        </section>
-
-        <section id="mercado" className="print-break">
-          <SectionTitle
-            icon={TrendingUp}
-            title="Estudio de mercado"
-            subtitle="Comparativo entre el proyecto y el comportamiento promedio del mercado."
-            isDark={isDark}
-          />
+        <section id="indice">
+          <SectionTitle icon={ListOrdered} title="1. Índice" subtitle="Contenido considerado en esta primera entrega." isDark={isDark} />
           <Card isDark={isDark}>
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <h3 className={`text-lg font-semibold ${title}`}>Comparativos</h3>
-              <div className={`rounded-2xl p-1 ${soft}`}>
-                <button
-                  onClick={() => setMarketView('rentas')}
-                  className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                    marketView === 'rentas'
-                      ? 'bg-sky-500 text-white shadow-sm'
-                      : isDark
-                        ? 'text-slate-200'
-                        : 'text-slate-700'
-                  }`}
-                >
-                  Rentas
-                </button>
-                <button
-                  onClick={() => setMarketView('venta')}
-                  className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                    marketView === 'venta'
-                      ? 'bg-violet-500 text-white shadow-sm'
-                      : isDark
-                        ? 'text-slate-200'
-                        : 'text-slate-700'
-                  }`}
-                >
-                  Venta
-                </button>
-              </div>
-            </div>
-
-            <div className="h-[380px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={marketView === 'rentas' ? marketRentData : marketSaleData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="category" />
-                  <YAxis />
-                  <Tooltip formatter={tooltipCurrencyFormatter} />
-                  <Legend />
-                  <Bar
-                    dataKey="principal"
-                    name={marketView === 'rentas' ? 'Proyecto' : 'Asís'}
-                    fill="#0ea5e9"
-                    radius={[8, 8, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="comparativo"
-                    name={marketView === 'rentas' ? 'Mercado' : 'Zona'}
-                    fill="#8b5cf6"
-                    radius={[8, 8, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                '1. Índice',
+                '2. Objetivo',
+                '3. Antecedentes',
+                '4. Resumen ejecutivo',
+                '5. Descripción del proyecto',
+                '6. Análisis FODA',
+                '7. Estudio de mercado',
+              ].map((item) => (
+                <div key={item} className={`rounded-2xl px-4 py-3 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+                  <span className={`${title} font-medium`}>{item}</span>
+                </div>
+              ))}
             </div>
           </Card>
         </section>
 
+        <section id="objetivo">
+          <SectionTitle icon={Target} title="2. Objetivo" subtitle="Propósito del análisis del proyecto Asís PerSe." isDark={isDark} />
+          <Card isDark={isDark}>
+            <p className={`leading-8 ${muted}`}>
+              Analizar la viabilidad del proyecto inmobiliario Asís PerSe a partir de sus características generales, la trayectoria del desarrollador, su ubicación, el mercado al que se dirige y sus principales ventajas estratégicas, con el fin de sustentar de manera cualitativa si se trata de una propuesta atractiva dentro del sector inmobiliario en Guadalajara.
+            </p>
+          </Card>
+        </section>
+
+        <section id="antecedentes">
+          <SectionTitle icon={Newspaper} title="3. Antecedentes" subtitle="Contexto del proyecto y del tipo de desarrollo inmobiliario." isDark={isDark} />
+          <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+            <Card isDark={isDark}>
+              <p className={`leading-8 ${muted}`}>
+                Asís PerSe surge dentro de un contexto de crecimiento del mercado de rentas temporales y medias en Guadalajara, especialmente en zonas premium como Providencia. Este tipo de desarrollos ha ganado relevancia por atender la demanda de ejecutivos, turistas y profesionistas que buscan ubicaciones céntricas, amenidades y periodos de estancia flexibles.
+              </p>
+              <p className={`mt-4 leading-8 ${muted}`}>
+                El proyecto también se apoya en un modelo inmobiliario que combina operación, administración y comercialización de participaciones, lo cual le da un enfoque distinto frente a desarrollos habitacionales tradicionales orientados solamente a la venta de departamentos.
+              </p>
+            </Card>
+            <Card isDark={isDark}>
+              <h3 className={`mb-4 text-lg font-semibold ${title}`}>Contexto visual</h3>
+              <HoverImage src="/project-2.jpeg.png" alt="Ubicación del proyecto" className="h-64 w-full rounded-3xl" />
+              <p className={`mt-4 text-sm leading-7 ${muted}`}>
+                La ubicación en Providencia y la cercanía con Midtown y la zona financiera fortalecen el posicionamiento del desarrollo para el mercado de rentas ejecutivas y estancias cortas.
+              </p>
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={`mt-4 inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium transition ${isDark ? 'bg-sky-500/15 text-sky-300 hover:bg-sky-500/25' : 'bg-sky-50 text-sky-700 hover:bg-sky-100'}`}
+              >
+                <MapPin className="h-4 w-4" />
+                Abrir ubicación en Google Maps
+              </a>
+            </Card>
+          </div>
+        </section>
+
+        <section id="resumen">
+          <SectionTitle icon={FileText} title="4. Resumen ejecutivo" subtitle="Síntesis general del proyecto para exponerlo de forma rápida." isDark={isDark} />
+          <Card isDark={isDark}>
+            <p className={`leading-8 ${muted}`}>
+              Asís PerSe es un desarrollo inmobiliario de 9 niveles con 38 estudios, ubicado en la colonia Providencia de Guadalajara. El proyecto está diseñado para operar bajo un esquema de rentas de corta y larga estancia, enfocado principalmente en ejecutivos y turistas. Entre sus principales amenidades se encuentran roof garden, gimnasio, terrazas, lobby y elevadores. El desarrollo es impulsado por PerSe Capital, empresa con experiencia previa en proyectos similares y participación en campañas anteriores dentro de briq.mx. La propuesta destaca por su ubicación, sus amenidades y su orientación a un nicho con demanda creciente dentro de la ciudad. En esta primera entrega se analiza el contexto general del proyecto, su descripción, sus fortalezas y su comportamiento frente al mercado.
+            </p>
+          </Card>
+        </section>
+
+        <section id="descripcion" className="print-break">
+          <SectionTitle icon={Building2} title="5. Descripción del proyecto" subtitle="Empresa, historial, noticias y características del desarrollo." isDark={isDark} />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card isDark={isDark}>
+              <h3 className={`text-lg font-semibold ${title}`}>Empresa desarrolladora</h3>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <DataPair label="Empresa" value={project.developer} isDark={isDark} />
+                <DataPair label="Trayectoria visible en briq.mx" value={`${project.campaigns} campañas / ${project.projects} proyectos`} isDark={isDark} />
+                <DataPair label="Monto recaudado" value={project.developerRaised} isDark={isDark} />
+                <DataPair label="Historial" value={project.previousWithBriq} isDark={isDark} />
+              </div>
+              <div className={`mt-6 rounded-2xl p-4 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+                <p className={`font-semibold ${title}`}>Noticias e información relevante</p>
+                <p className={`mt-2 text-sm leading-7 ${muted}`}>
+                  PerSe Capital reporta una trayectoria acumulada de {project.campaigns} campañas y {project.projects} proyectos publicados en briq.mx, con un monto recaudado de {project.developerRaised}. Esto respalda la percepción de experiencia operativa, capacidad de estructuración financiera y continuidad dentro de la plataforma.
+                </p>
+              </div>
+              <div className={`mt-6 rounded-2xl p-5 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+                <p className={`text-lg font-semibold ${title}`}>Descripción detallada del proyecto</p>
+                <p className={`mt-3 text-sm leading-8 ${muted}`}>
+                  Asís PerSe es un desarrollo vertical ubicado en Providencia, una de las zonas con mayor consolidación urbana y plusvalía de Guadalajara. El proyecto contempla la construcción de un edificio de 9 niveles con 38 estudios, pensados para atender un segmento que demanda espacios compactos, bien ubicados y con amenidades funcionales para estancias cortas y medias. Su cercanía con Midtown, la zona financiera y corredores comerciales lo vuelve especialmente atractivo para ejecutivos, profesionistas desplazados temporalmente, turistas de negocios y usuarios que valoran la conectividad dentro de la ciudad.
+                </p>
+                <p className={`mt-3 text-sm leading-8 ${muted}`}>
+                  A nivel operativo, el proyecto no se limita a vender unidades tradicionales, sino que integra un modelo de administración y explotación orientado a rentas. Los 38 estudios se dividen en 85 participaciones, lo que permite estructurar la inversión y la fuente de repago a partir de la comercialización de esas participaciones y del desempeño esperado del inmueble. Este enfoque le da al desarrollo un perfil híbrido entre producto inmobiliario y vehículo de inversión, con una propuesta diferenciada frente a esquemas convencionales de compraventa de departamentos.
+                </p>
+                <p className={`mt-3 text-sm leading-8 ${muted}`}>
+                  En términos de propuesta de valor, Asís PerSe busca competir mediante ubicación, diseño compacto, amenidades y operación especializada. El roof garden, gimnasio, terrazas, lobby y elevadores complementan una experiencia pensada para usuarios que priorizan practicidad, imagen y servicios dentro de un solo inmueble. Por ello, el proyecto puede considerarse atractivo para un nicho que busca flexibilidad en la ocupación y, al mismo tiempo, para inversionistas interesados en un activo con potencial de rentabilidad dentro del mercado de estancias urbanas en Guadalajara.
+                </p>
+              </div>
+              <div className="mt-6">
+                <p className={`text-lg font-semibold ${title}`}>Proyectos comparables del desarrollador</p>
+                <div className="mt-4 space-y-4">
+                  {similarProjects.map((item) => (
+                    <div key={item.name} className={`rounded-2xl border p-4 ${isDark ? 'border-slate-800 bg-slate-800/70' : 'border-slate-200 bg-slate-50'}`}>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className={`font-semibold ${title}`}>{item.name}</p>
+                        <span className={`text-xs ${muted}`}>{item.location}</span>
+                      </div>
+                      <p className={`mt-2 text-sm leading-7 ${muted}`}>{item.summary}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+
+            <Card isDark={isDark}>
+              <h3 className={`text-lg font-semibold ${title}`}>Características del proyecto</h3>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <DataPair label="Descripción" value={`${project.floors} niveles y ${project.units} estudios`} isDark={isDark} />
+                <DataPair label="Localización" value={project.location} isDark={isDark} href={mapsUrl} />
+                <DataPair label="Periodo de construcción" value={`En proceso · avance reportado ${project.constructionProgress}%`} isDark={isDark} />
+                <DataPair label="Periodo de operación" value={project.operationModel} isDark={isDark} />
+              </div>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {amenityDetails.map((amenity) => (
+                  <AmenityCard key={amenity.name} amenity={amenity} isDark={isDark} />
+                ))}
+              </div>
+            </Card>
+          </div>
+        </section>
+
         <section id="foda" className="print-break">
-          <SectionTitle
-            icon={Target}
-            title="Análisis FODA"
-            subtitle="Diagnóstico estratégico del proyecto."
-            isDark={isDark}
-          />
+          <SectionTitle icon={CheckCircle2} title="6. Análisis FODA" subtitle="Diagnóstico estratégico del proyecto." isDark={isDark} />
           <div className="grid gap-5 md:grid-cols-2">
             <FodaCard title="Fortalezas" items={foda.fortalezas} tone="emerald" isDark={isDark} />
             <FodaCard title="Oportunidades" items={foda.oportunidades} tone="sky" isDark={isDark} />
@@ -578,211 +482,112 @@ function App() {
           </div>
         </section>
 
-        <section id="escenarios" className="print-break">
-          <SectionTitle
-            icon={Calendar}
-            title="Evaluación de escenarios"
-            subtitle="Comparación entre escenarios optimista, base y pesimista."
-            isDark={isDark}
-          />
-          <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-            <Card isDark={isDark}>
-              <div className="mb-5 flex flex-wrap gap-2">
-                {Object.keys(scenarioData).map((key) => (
-                  <button
-                    key={key}
-                    onClick={() => setScenario(key as keyof typeof scenarioData)}
-                    className={`rounded-2xl px-4 py-2 text-sm font-medium transition ${
-                      scenario === key
-                        ? 'bg-slate-900 text-white'
-                        : isDark
-                          ? 'bg-slate-800 text-slate-200'
-                          : 'bg-slate-100 text-slate-800'
-                    }`}
-                  >
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
+        <section id="mercado" className="print-break">
+          <SectionTitle icon={Search} title="7. Estudio de mercado" subtitle="Comparación del proyecto frente al mercado de rentas y venta." isDark={isDark} />
+          <div className="grid items-start gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="self-start">
+              <Card isDark={isDark}>
+              <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <h3 className={`text-lg font-semibold ${title}`}>Comparativos del mercado</h3>
+                <div className={`rounded-2xl p-1 ${soft}`}>
+                  <button onClick={() => setMarketView('rentas')} className={`rounded-xl px-4 py-2 text-sm font-medium transition ${marketView === 'rentas' ? 'bg-sky-500 text-white shadow-sm' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                    Rentas
                   </button>
-                ))}
+                  <button onClick={() => setMarketView('venta')} className={`rounded-xl px-4 py-2 text-sm font-medium transition ${marketView === 'venta' ? 'bg-violet-500 text-white shadow-sm' : isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                    Venta
+                  </button>
+                </div>
               </div>
-
-              <div className="grid gap-4 md:grid-cols-3">
-                <MiniInfo
-                  title="Ocupación"
-                  value={`${scenarioData[scenario].occupancy}%`}
-                  isDark={isDark}
-                />
-                <MiniInfo
-                  title="Tarifa por noche"
-                  value={currency(scenarioData[scenario].nightly)}
-                  isDark={isDark}
-                />
-                <MiniInfo
-                  title="Ingreso anual"
-                  value={currency(scenarioData[scenario].annualIncome)}
-                  isDark={isDark}
-                />
-              </div>
-
-              <div className={`mt-5 rounded-2xl p-4 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
-                <p className={`text-sm ${muted}`}>Lectura del escenario</p>
-                <p className={`mt-1 text-lg font-semibold ${title}`}>
-                  {scenarioData[scenario].verdict}
-                </p>
-              </div>
-            </Card>
-
-            <Card isDark={isDark}>
-              <h3 className={`mb-4 text-lg font-semibold ${title}`}>Sensibilidad de ingresos</h3>
-              <div className="h-80">
+              <div className="h-[360px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={scenarioSeries}>
+                  <BarChart data={marketChartData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="category" />
                     <YAxis />
-                    <Tooltip formatter={tooltipCurrencyFormatter} />
-                    <Area type="monotone" dataKey="ingreso" stroke="#0ea5e9" fill="#38bdf8" fillOpacity={0.25} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </div>
-        </section>
-
-        <section className="print-break">
-          <SectionTitle
-            icon={AlertTriangle}
-            title="Problemática y alternativas de solución"
-            subtitle="Riesgos principales y acciones para mejorar la rentabilidad."
-            isDark={isDark}
-          />
-          <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-            <Card isDark={isDark}>
-              <h3 className={`mb-4 text-lg font-semibold ${title}`}>Radar cualitativo</h3>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart
-                    data={[
-                      { factor: 'Ubicación', value: 9 },
-                      { factor: 'Garantía', value: 9 },
-                      { factor: 'Mercado', value: 8 },
-                      { factor: 'Precio/m²', value: 6 },
-                      { factor: 'Ocupación', value: 6 },
-                      { factor: 'Experiencia', value: 8 },
-                    ]}
-                  >
-                    <PolarGrid />
-                    <PolarAngleAxis dataKey="factor" />
-                    <PolarRadiusAxis domain={[0, 10]} />
-                    <Radar dataKey="value" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.35} />
                     <Tooltip />
-                  </RadarChart>
+                    <Legend />
+                    <Bar name={marketLegend.project} dataKey="projectValue" fill="#0ea5e9" radius={[8, 8, 0, 0]} />
+                    <Bar name={marketLegend.market} dataKey="marketValue" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
-            </Card>
+              </Card>
+            </div>
 
-            <Card isDark={isDark}>
-              <div className="space-y-5">
-                <div className={`rounded-2xl p-4 ${isDark ? 'bg-rose-950/40 border border-rose-900' : 'bg-rose-50 border border-rose-200'}`}>
-                  <p className={`font-semibold ${title}`}>Problemática principal</p>
-                  <p className={`mt-2 text-sm leading-6 ${muted}`}>
-                    La rentabilidad depende en gran medida de mantener una ocupación suficiente
-                    y una tarifa por noche competitiva. Si la demanda baja, los ingresos anuales
-                    se reducen de forma importante.
-                  </p>
+            <div className="space-y-6">
+              <Card isDark={isDark}>
+                <h3 className={`mb-4 text-lg font-semibold ${title}`}>Participaciones comercializadas</h3>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={participationsData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={95} paddingAngle={4}>
+                        {participationsData.map((_, i) => (
+                          <Cell key={i} fill={chartColors[i]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
-
-                <div className={`rounded-2xl p-4 ${isDark ? 'bg-emerald-950/40 border border-emerald-900' : 'bg-emerald-50 border border-emerald-200'}`}>
-                  <p className={`font-semibold ${title}`}>Alternativas de solución</p>
-                  <ul className={`mt-2 space-y-2 text-sm leading-6 ${muted}`}>
-                    <li>• Aplicar precios dinámicos por temporada.</li>
-                    <li>• Mezclar rentas cortas con estancias medias.</li>
-                    <li>• Crear convenios con empresas y ejecutivos.</li>
-                    <li>• Fortalecer marketing digital en varios canales.</li>
-                    <li>• Controlar costos operativos desde el inicio.</li>
-                  </ul>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </section>
-
-        <section id="resultados" className="print-break">
-          <SectionTitle
-            icon={CheckCircle2}
-            title="Resultados y conclusión"
-            subtitle="Síntesis final de rentabilidad y mejora propuesta."
-            isDark={isDark}
-          />
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card isDark={isDark}>
-              <h3 className={`text-lg font-semibold ${title}`}>¿Es rentable o no?</h3>
-              <p className={`mt-4 leading-7 ${muted}`}>
-                Con la información disponible, el proyecto puede considerarse
-                <span className={`font-semibold ${title}`}> rentable en el escenario base</span>,
-                respaldado por una TIR estimada de {project.estimatedIRR}%,
-                una ubicación atractiva y una estructura de capital equilibrada.
-              </p>
-
-              <ul className={`mt-5 space-y-3 text-sm ${muted}`}>
-                <li>• Inversión total: <span className={title}>{currency(project.totalInvestment)}</span></li>
-                <li>• Ingreso anual estimado: <span className={title}>{currency(annualProjectIncome)}</span></li>
-                <li>• Tasa anual fija: <span className={title}>{project.annualRate}%</span></li>
-                <li>• Garantía / crédito: <span className={title}>{project.guaranteeRatio} a 1</span></li>
-              </ul>
-            </Card>
-
-            <Card isDark={isDark}>
-              <h3 className={`text-lg font-semibold ${title}`}>Propuesta de mejora</h3>
-              <ul className={`mt-4 space-y-3 text-sm ${muted}`}>
-                <li>• Incrementar ocupación con alianzas corporativas.</li>
-                <li>• Optimizar tarifas según temporada y eventos.</li>
-                <li>• Ofrecer servicios premium para justificar precios mayores.</li>
-                <li>• Reforzar publicidad digital y diversificación de plataformas.</li>
-                <li>• Monitorear mensualmente la rentabilidad real contra proyecciones.</li>
-              </ul>
-            </Card>
-          </div>
-        </section>
-
-        <section className="print-break">
-          <SectionTitle
-            icon={Images}
-            title="Ruta del proyecto"
-            subtitle="Línea de tiempo visual para cerrar la exposición."
-            isDark={isDark}
-          />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {timeline.map((item, idx) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className={`rounded-3xl p-5 shadow-sm ${bgCard}`}
-              >
-                <p className="text-xs font-semibold uppercase tracking-wider text-sky-500">
-                  {item.tag}
+                <p className={`mt-3 text-sm leading-7 ${muted}`}>
+                  A partir del avance reportado, se observa que ya existe tracción comercial, lo cual ayuda a validar el interés del mercado por el proyecto.
                 </p>
-                <h3 className={`mt-2 text-lg font-semibold ${title}`}>{item.title}</h3>
-                <p className={`mt-2 text-sm leading-6 ${muted}`}>{item.desc}</p>
-              </motion.div>
-            ))}
+              </Card>
+
+              <Card isDark={isDark}>
+                <h3 className={`mb-3 text-lg font-semibold ${title}`}>Lectura del mercado</h3>
+                <p className={`text-sm leading-7 ${muted}`}>
+                  Para que este comparativo se sostenga con referencias públicas, la vista de rentas se recalculó con anuncios activos de 1 recámara en Providencia, Prados de Providencia y Colomos Providencia. La vista de venta se ajustó con listados de departamentos de 1 recámara en Providencia y Providencia 1a Sección. Así, los datos del mercado ya no son ejemplos genéricos, sino promedios redondeados de comparables reales.
+                </p>
+                <p className={`mt-3 text-sm leading-7 ${muted}`}>
+                  Corte de consulta: 26 de marzo de 2026. En renta se usaron 6 comparables y en venta 20 comparables. Los valores de Asís corresponden al proyecto, mientras que los valores del mercado son promedios observados en los listados revisados.
+                </p>
+                <div className="mt-4 grid gap-4">
+                  <div className={`rounded-2xl p-4 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+                    <p className={`text-sm font-semibold ${title}`}>Fuentes de renta</p>
+                    <div className="mt-2 flex flex-col gap-2">
+                      {rentSources.map((source) => (
+                        <a
+                          key={source.url}
+                          href={source.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={`text-sm underline-offset-4 hover:underline ${isDark ? 'text-sky-300' : 'text-sky-700'}`}
+                        >
+                          {source.label}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={`rounded-2xl p-4 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+                    <p className={`text-sm font-semibold ${title}`}>Fuentes de venta</p>
+                    <div className="mt-2 flex flex-col gap-2">
+                      {saleSources.map((source) => (
+                        <a
+                          key={source.url}
+                          href={source.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={`text-sm underline-offset-4 hover:underline ${isDark ? 'text-sky-300' : 'text-sky-700'}`}
+                        >
+                          {source.label}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
           </div>
         </section>
 
         <section id="creditos" className="print-break">
-          <SectionTitle
-            icon={FileText}
-            title="Créditos"
-            subtitle=""
-            isDark={isDark}
-          />
-          <div className={`rounded-[2rem] p-8 shadow-xl ${bgCard}`}>
+          <SectionTitle icon={Images} title="Datos de entrega" subtitle="Personaliza esta parte con la información final de tu equipo." isDark={isDark} />
+          <div className={`rounded-4xl p-8 shadow-xl ${bgCard}`}>
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-500">
-                  Proyecto académico
-                </p>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-500">Primera entrega</p>
                 <h2 className={`mt-3 text-3xl font-bold ${title}`}>{teamInfo.title}</h2>
                 <div className={`mt-6 grid gap-3 text-sm ${muted}`}>
                   <p><span className={`font-semibold ${title}`}>Materia:</span> {teamInfo.subject}</p>
@@ -792,7 +597,6 @@ function App() {
                   <p><span className={`font-semibold ${title}`}>Fecha:</span> {teamInfo.date}</p>
                 </div>
               </div>
-
               <div className={`rounded-3xl p-6 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
                 <h3 className={`text-lg font-semibold ${title}`}>Integrantes</h3>
                 <ul className={`mt-4 space-y-3 text-sm ${muted}`}>
@@ -809,155 +613,103 @@ function App() {
   )
 }
 
-function Badge({
-  icon: Icon,
-  text,
-  isDark,
-}: {
-  icon: React.ElementType
-  text: string
-  isDark: boolean
-}) {
+function Badge({ icon: Icon, text, isDark }: { icon: React.ElementType; text: string; isDark: boolean }) {
   return (
-    <div
-      className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 shadow-sm ${isDark ? 'bg-slate-900 text-slate-100 border border-slate-800' : 'bg-white text-slate-800 border border-slate-200'}`}
-    >
+    <div className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 shadow-sm ${isDark ? 'bg-slate-900 text-slate-100 border border-slate-800' : 'bg-white text-slate-800 border border-slate-200'}`}>
       <Icon className="h-4 w-4 text-sky-500" />
       <span className="text-sm">{text}</span>
     </div>
   )
 }
 
-function StatCard({
-  label,
-  value,
-  Icon,
-  isDark,
-}: {
-  label: string
-  value: string
-  Icon: React.ElementType
-  isDark: boolean
-}) {
+function HoverImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
   return (
-    <div className={`rounded-3xl p-5 shadow-sm ${isDark ? 'bg-slate-900 border border-slate-800' : 'bg-white border border-slate-200'}`}>
-      <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-violet-500 text-white">
-        <Icon className="h-5 w-5" />
-      </div>
-      <p className={`${isDark ? 'text-slate-300' : 'text-slate-500'} text-sm`}>{label}</p>
-      <p className={`mt-1 text-2xl font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-        {value}
-      </p>
+    <div className={`group overflow-hidden ${className ?? ''}`}>
+      <img
+        src={src}
+        alt={alt}
+        className="h-full w-full rounded-inherit object-cover transition duration-500 ease-out group-hover:scale-110"
+      />
     </div>
   )
 }
 
-function MiniInfo({
-  title,
-  value,
-  isDark,
-}: {
-  title: string
-  value: string
-  isDark: boolean
-}) {
-  return (
-    <div className={`rounded-2xl p-4 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+function MiniInfo({ title, value, isDark, href }: { title: string; value: string; isDark: boolean; href?: string }) {
+  const content = (
+    <>
       <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-500'}`}>{title}</p>
-      <p className={`mt-1 text-xl font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-        {value}
-      </p>
-    </div>
+      <p className={`mt-1 text-xl font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{value}</p>
+    </>
+  )
+
+  return (
+    href ? (
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className={`block rounded-2xl p-4 transition hover:-translate-y-0.5 hover:shadow-md ${isDark ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-50 hover:bg-slate-100'}`}
+      >
+        {content}
+      </a>
+    ) : (
+      <div className={`rounded-2xl p-4 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+        {content}
+      </div>
+    )
   )
 }
 
-function SectionTitle({
-  icon: Icon,
-  title,
-  subtitle,
-  isDark,
-}: {
-  icon: React.ElementType
-  title: string
-  subtitle: string
-  isDark: boolean
-}) {
+function SectionTitle({ icon: Icon, title, subtitle, isDark }: { icon: React.ElementType; title: string; subtitle: string; isDark: boolean }) {
   return (
     <div className="mb-6 flex items-start gap-4">
       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-violet-500 text-white shadow-sm">
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <h2 className={`text-2xl font-semibold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-          {title}
-        </h2>
+        <h2 className={`text-2xl font-semibold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>{title}</h2>
         <p className={`mt-1 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{subtitle}</p>
       </div>
     </div>
   )
 }
 
-function Card({
-  children,
-  isDark,
-}: {
-  children: React.ReactNode
-  isDark: boolean
-}) {
-  return (
-    <div className={`rounded-[2rem] p-6 shadow-sm ${isDark ? 'bg-slate-900 border border-slate-800' : 'bg-white border border-slate-200'}`}>
-      {children}
-    </div>
-  )
+function Card({ children, isDark }: { children: React.ReactNode; isDark: boolean }) {
+  return <div className={`rounded-[2rem] p-6 shadow-sm ${isDark ? 'bg-slate-900 border border-slate-800' : 'bg-white border border-slate-200'}`}>{children}</div>
 }
 
-function DataPair({
-  label,
-  value,
-  isDark,
-}: {
-  label: string
-  value: string
-  isDark: boolean
-}) {
-  return (
-    <div>
+function DataPair({ label, value, isDark, href }: { label: string; value: string; isDark: boolean; href?: string }) {
+  const content = (
+    <>
       <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-500'}`}>{label}</p>
       <p className={`mt-1 font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{value}</p>
-    </div>
+    </>
   )
-}
 
-function KpiBlock({
-  label,
-  value,
-  isDark,
-}: {
-  label: string
-  value: string
-  isDark: boolean
-}) {
   return (
-    <div className={`rounded-3xl p-5 shadow-sm ${isDark ? 'bg-slate-900 border border-slate-800' : 'bg-white border border-slate-200'}`}>
-      <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-500'}`}>{label}</p>
-      <p className={`mt-2 text-2xl font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-        {value}
-      </p>
+    href ? (
+      <a href={href} target="_blank" rel="noreferrer" className="block rounded-2xl p-2 transition hover:bg-slate-500/5">
+        {content}
+      </a>
+    ) : (
+      <div>{content}</div>
+    )
+  )
+}
+
+function AmenityCard({ amenity, isDark }: { amenity: Amenity; isDark: boolean }) {
+  return (
+    <div className={`overflow-hidden rounded-[1.75rem] border transition hover:-translate-y-1 hover:shadow-xl ${isDark ? 'border-slate-800 bg-slate-800/70' : 'border-slate-200 bg-slate-50'}`}>
+      <HoverImage src={amenity.image} alt={amenity.name} className="h-40 w-full" />
+      <div className="p-4">
+        <p className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{amenity.name}</p>
+        <p className={`mt-2 text-sm leading-6 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{amenity.description}</p>
+      </div>
     </div>
   )
 }
 
-function FodaCard({
-  title,
-  items,
-  tone,
-  isDark,
-}: {
-  title: string
-  items: string[]
-  tone: 'emerald' | 'sky' | 'amber' | 'rose'
-  isDark: boolean
-}) {
+function FodaCard({ title, items, tone, isDark }: { title: string; items: string[]; tone: 'emerald' | 'sky' | 'amber' | 'rose'; isDark: boolean }) {
   const tones: Record<string, string> = {
     emerald: isDark ? 'bg-emerald-950/30 border border-emerald-900' : 'bg-emerald-50 border border-emerald-200',
     sky: isDark ? 'bg-sky-950/30 border border-sky-900' : 'bg-sky-50 border border-sky-200',
@@ -967,9 +719,7 @@ function FodaCard({
 
   return (
     <div className={`rounded-3xl p-5 ${tones[tone]}`}>
-      <h3 className={`mb-4 text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-        {title}
-      </h3>
+      <h3 className={`mb-4 text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{title}</h3>
       <ul className={`space-y-3 text-sm ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
         {items.map((item) => (
           <li key={item} className="flex gap-2">
