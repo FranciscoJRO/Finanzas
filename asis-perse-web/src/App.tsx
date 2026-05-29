@@ -100,6 +100,15 @@ const percent = (n: number, digits = 2) =>
 
 const millions = (n: number) => `$${(n / 1_000_000).toFixed(2)} M`
 
+const chartNumber = (n: number) =>
+  new Intl.NumberFormat('es-MX', {
+    minimumFractionDigits: Number.isInteger(n) ? 0 : 2,
+    maximumFractionDigits: Number.isInteger(n) ? 0 : 2,
+  }).format(n)
+
+const chartTooltipFormatter = (value: unknown) =>
+  typeof value === 'number' ? chartNumber(value) : String(value)
+
 const project = {
   name: 'Asis PerSe',
   developer: 'PerSe Capital',
@@ -431,6 +440,9 @@ function App() {
 
   const monthlyFinancialModel = buildMonthlyFinancialModel()
   const unitSalePrice = financialInputs.totalSales / financialInputs.units
+  const chartTick = { fontSize: 16, fontWeight: 600 }
+  const chartLegendStyle = { fontSize: 16, fontWeight: 600 }
+  const chartTooltipStyle = { fontSize: 18, fontWeight: 600 }
 
   const financingData = [
     { name: 'Banco 70%', value: financialInputs.bankAmount },
@@ -795,10 +807,10 @@ function App() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={marketChartData}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="category" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
+                      <XAxis dataKey="category" tick={chartTick} />
+                      <YAxis tick={chartTick} tickFormatter={(value) => chartNumber(Number(value))} />
+                      <Tooltip formatter={chartTooltipFormatter} contentStyle={chartTooltipStyle} />
+                      <Legend wrapperStyle={chartLegendStyle} />
                       <Bar name={marketLegend.project} dataKey="projectValue" fill="#0ea5e9" radius={[8, 8, 0, 0]} />
                       <Bar name={marketLegend.market} dataKey="marketValue" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
                     </BarChart>
@@ -818,8 +830,8 @@ function App() {
                           <Cell key={i} fill={chartColors[i]} />
                         ))}
                       </Pie>
-                      <Tooltip />
-                      <Legend />
+                      <Tooltip formatter={chartTooltipFormatter} contentStyle={chartTooltipStyle} />
+                      <Legend wrapperStyle={chartLegendStyle} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -942,8 +954,8 @@ function App() {
                         <Cell key={i} fill={i === 0 ? '#0ea5e9' : '#8b5cf6'} />
                       ))}
                     </Pie>
-                    <Tooltip />
-                    <Legend />
+                    <Tooltip formatter={chartTooltipFormatter} contentStyle={chartTooltipStyle} />
+                    <Legend wrapperStyle={chartLegendStyle} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -960,10 +972,10 @@ function App() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyFinancialModel}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis tickFormatter={(value) => `${Math.round(value / 1_000_000)}M`} />
-                    <Tooltip />
-                    <Legend />
+                    <XAxis dataKey="month" tick={chartTick} />
+                    <YAxis tick={chartTick} tickFormatter={(value) => `${Math.round(Number(value) / 1_000_000)}M`} />
+                    <Tooltip formatter={chartTooltipFormatter} contentStyle={chartTooltipStyle} labelStyle={chartTooltipStyle} />
+                    <Legend wrapperStyle={chartLegendStyle} />
                     <Bar name="Ingresos por venta" dataKey="revenue" fill="#0ea5e9" radius={[8, 8, 0, 0]} />
                     <Bar name="Pagos al banco" dataKey="bankPayment" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
                     <Bar name="Flujo libre de caja" dataKey="freeCash" fill="#14b8a6" radius={[8, 8, 0, 0]} />
@@ -982,10 +994,10 @@ function App() {
                   <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyFinancialModel}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis tickFormatter={(value) => `${Math.round(value / 1_000_000)}M`} />
-                    <Tooltip />
-                    <Legend />
+                    <XAxis dataKey="month" tick={chartTick} />
+                    <YAxis tick={chartTick} tickFormatter={(value) => `${Math.round(Number(value) / 1_000_000)}M`} />
+                    <Tooltip formatter={chartTooltipFormatter} contentStyle={chartTooltipStyle} labelStyle={chartTooltipStyle} />
+                    <Legend wrapperStyle={chartLegendStyle} />
                     <Bar name="Saldo inicial" dataKey="debtStart" fill="#334155" radius={[8, 8, 0, 0]} />
                     <Bar name="Intereses acumulados" dataKey="interest" fill="#f59e0b" radius={[8, 8, 0, 0]} />
                     <Bar name="Amortizacion" dataKey="amortization" fill="#22c55e" radius={[8, 8, 0, 0]} />
@@ -1001,10 +1013,10 @@ function App() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={monthlyFinancialModel}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis tickFormatter={(value) => `${Math.round(value / 1_000_000)}M`} />
-                      <Tooltip />
-                      <Legend />
+                      <XAxis dataKey="month" tick={chartTick} />
+                      <YAxis tick={chartTick} tickFormatter={(value) => `${Math.round(Number(value) / 1_000_000)}M`} />
+                      <Tooltip formatter={chartTooltipFormatter} contentStyle={chartTooltipStyle} labelStyle={chartTooltipStyle} />
+                      <Legend wrapperStyle={chartLegendStyle} />
                       <Bar name="Flujo acumulado" dataKey="cumulativeFreeCash" fill="#0ea5e9" radius={[8, 8, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
